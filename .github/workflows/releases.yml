@@ -29,7 +29,19 @@ jobs:
       - name: Run Flake8
         run: flake8 .
 
-      - name: Bump version and create release
-        uses: rymndhng/release-on-push-action@v0.4.0
+      - name: Create Git tag and export VERSION
+        id: tag_version
+        run: |
+          VERSION="v$(date +'%Y.%m.%d.%H%M%S')"
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+          git tag $VERSION
+          git push origin $VERSION
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ env.VERSION }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
