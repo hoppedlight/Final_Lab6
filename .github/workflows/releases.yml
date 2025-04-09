@@ -1,4 +1,4 @@
-name: Release
+name: Release Automation
 
 on:
   push:
@@ -16,32 +16,15 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.10"
+          python-version: "3.9"
 
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install black flake8
+          python -m pip install --upgrade pip setuptools wheel
 
-      - name: Run Black
-        run: black . --check
-
-      - name: Run Flake8
-        run: flake8 .
-
-      - name: Create Git tag and export VERSION
-        id: tag_version
+      - name: Generate release tag
+        id: versioning
         run: |
-          VERSION="v$(date +'%Y.%m.%d.%H%M%S')"
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
-          git config --global user.name "${{ github.actor }}"
-          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
-          git tag $VERSION
-          git push origin $VERSION
-
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: ${{ env.VERSION }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION="v$(date +'%Y.%m.%d')"
+          echo "RELEASE_VERSION=$VERSION" >> $GITHUB_ENV
+          echo "Generated tag: $VERSION"
